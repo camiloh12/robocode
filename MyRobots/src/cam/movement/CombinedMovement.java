@@ -50,120 +50,130 @@ public class CombinedMovement implements Movement {
 	@Override
 	public void onScannedRobot(ScannedRobotEvent event) {
 		// TODO WSMovement
-		myLocation = new Point2D.Double(robot.getX(), robot.getY());
+		if (robot.getOthers() <= 1) {
+			myLocation = new Point2D.Double(robot.getX(), robot.getY());
 
-		double lateralVelocity = robot.getVelocity() * Math.sin(event.getBearingRadians());
-		double absBearing = event.getBearingRadians() + robot.getHeadingRadians();
+			double lateralVelocity = robot.getVelocity() * Math.sin(event.getBearingRadians());
+			double absBearing = event.getBearingRadians() + robot.getHeadingRadians();
 
-		robot.setTurnRadarRightRadians(Utils.normalRelativeAngle(absBearing - robot.getRadarHeadingRadians() * 2));
+			robot.setTurnRadarRightRadians(Utils.normalRelativeAngle(absBearing - robot.getRadarHeadingRadians() * 2));
 
-		surfDirections.add(0, new Integer((lateralVelocity >= 0) ? 1 : -1));
-		surfAbsBearings.add(0, new Double(absBearing + Math.PI));
+			surfDirections.add(0, new Integer((lateralVelocity >= 0) ? 1 : -1));
+			surfAbsBearings.add(0, new Double(absBearing + Math.PI));
 
-		double bulletPower = oppEnergy - event.getEnergy();
-		if (bulletPower < 3.01 && bulletPower > 0.09 && surfDirections.size() > 2) {
-			EnemyWave enemyWave = new EnemyWave();
-			enemyWave.fireTime = robot.getTime() + 1;
-			enemyWave.bulletVelocity = RoboUtils.bulletVelocity(bulletPower);
-			enemyWave.distanceTraveled = RoboUtils.bulletVelocity(bulletPower);
-			;
-			enemyWave.direction = surfDirections.get(2).intValue();
-			enemyWave.directAngle = surfAbsBearings.get(2).doubleValue();
-			enemyWave.fireLocation = (Point2D.Double) enemyLocation.clone();
-			enemyWaves.add(enemyWave);
+			double bulletPower = oppEnergy - event.getEnergy();
+			if (bulletPower < 3.01 && bulletPower > 0.09 && surfDirections.size() > 2) {
+				EnemyWave enemyWave = new EnemyWave();
+				enemyWave.fireTime = robot.getTime() + 1;
+				enemyWave.bulletVelocity = RoboUtils.bulletVelocity(bulletPower);
+				enemyWave.distanceTraveled = RoboUtils.bulletVelocity(bulletPower);
+				;
+				enemyWave.direction = surfDirections.get(2).intValue();
+				enemyWave.directAngle = surfAbsBearings.get(2).doubleValue();
+				enemyWave.fireLocation = (Point2D.Double) enemyLocation.clone();
+				enemyWaves.add(enemyWave);
+			}
+
+			oppEnergy = event.getEnergy();
+
+			// update after EnemyWave detection, because that needs the previous
+			// enemy location as the source of the wave
+			enemyLocation = RoboUtils.project(myLocation, absBearing, event.getDistance());
+
+			updateWaves();
+			doSurfing();
 		}
-
-		oppEnergy = event.getEnergy();
-
-		// update after EnemyWave detection, because that needs the previous
-		// enemy location as the source of the wave
-		enemyLocation = RoboUtils.project(myLocation, absBearing, event.getDistance());
-
-		updateWaves();
-		doSurfing();
 
 	}
 
 	@Override
 	public void update() {
-		// TODO WSMovement
-		myLocation = new Point2D.Double(robot.getX(), robot.getY());
-		updateWaves();
-		doSurfing();
 
-		// TODO MRMovement
-		double distanceToNextDestination = info.myLocation.distance(info.nextDestination);
-		double distanceToTarget = info.myLocation.distance(info.target.position);
+		if (robot.getOthers() > 1) {
+			// TODO MRMovement
+			double distanceToNextDestination = info.myLocation.distance(info.nextDestination);
+			double distanceToTarget = info.myLocation.distance(info.target.position);
 
-		// search a new destination if I reached this one
-		if (distanceToNextDestination < 15) {
-			// there should be better formulas then this one but it is basically
-			// here to increase 1v1 performance. With more bots addLast
-			// will mostly be 1
-			double addLast = 1 - Math.rint(Math.pow(Math.random(), robot.getOthers()));
+			// search a new destination if I reached this one
+			if (distanceToNextDestination < 15) {
+				// there should be better formulas then this one but it is
+				// basically
+				// here to increase 1v1 performance. With more bots addLast
+				// will mostly be 1
+				double addLast = 1 - Math.rint(Math.pow(Math.random(), robot.getOthers()));
 
-			Rectangle2D.Double battlefield = new Rectangle2D.Double(30, 30, robot.getBattleFieldWidth() - 60,
-					robot.getBattleFieldHeight() - 60);
-			Point2D.Double testPoint;
+				Rectangle2D.Double battlefield = new Rectangle2D.Double(30, 30, robot.getBattleFieldWidth() - 60,
+						robot.getBattleFieldHeight() - 60);
+				Point2D.Double testPoint;
 
-			for (int i = 0; i < 200; i++) {
-				/**
-				 * Calculate the testPoint somewhere around the current
-				 * position. 100 + 200*Math.random() proved to be good if there
-				 * are around 10 bots in a 1000x1000 field. But this needs to be
-				 * limited to the distanceToTarget*0.8. This way the bot won't
-				 * run into the target (should be the closest bot)
-				 */
-				testPoint = RoboUtils.project(info.myLocation, 2 * Math.PI * Math.random(),
-						Math.min(distanceToTarget * 0.8, 100 + 200 * Math.random()));
-				if (battlefield.contains(testPoint)
-						&& evaluate(testPoint, addLast) < evaluate(info.nextDestination, addLast)) {
-					info.nextDestination = testPoint;
+				for (int i = 0; i < 200; i++) {
+					/**
+					 * Calculate the testPoint somewhere around the current
+					 * position. 100 + 200*Math.random() proved to be good if
+					 * there are around 10 bots in a 1000x1000 field. But this
+					 * needs to be limited to the distanceToTarget*0.8. This way
+					 * the bot won't run into the target (should be the closest
+					 * bot)
+					 */
+					testPoint = RoboUtils.project(info.myLocation, 2 * Math.PI * Math.random(),
+							Math.min(distanceToTarget * 0.8, 100 + 200 * Math.random()));
+					if (battlefield.contains(testPoint)
+							&& evaluate(testPoint, addLast) < evaluate(info.nextDestination, addLast)) {
+						info.nextDestination = testPoint;
+					}
 				}
-			}
 
-			info.lastPosition = info.myLocation;
+				info.lastPosition = info.myLocation;
+			} else {
+				// just the normal goto stuff
+				double angle = RoboUtils.absoluteBearing(info.myLocation, info.nextDestination)
+						- robot.getHeadingRadians();
+				double direction = 1;
+
+				if (Math.cos(angle) < 0) {
+					angle += Math.PI;
+					direction = -1;
+				}
+
+				robot.setAhead(distanceToNextDestination * direction);
+				robot.setTurnRightRadians(angle = Utils.normalRelativeAngle(angle));
+				robot.setMaxVelocity(Math.abs(angle) > 1 ? 0 : 8d);
+			}
 		} else {
-			// just the normal goto stuff
-			double angle = RoboUtils.absoluteBearing(info.myLocation, info.nextDestination) - robot.getHeadingRadians();
-			double direction = 1;
-
-			if (Math.cos(angle) < 0) {
-				angle += Math.PI;
-				direction = -1;
-			}
-
-			robot.setAhead(distanceToNextDestination * direction);
-			robot.setTurnRightRadians(angle = Utils.normalRelativeAngle(angle));
-			robot.setMaxVelocity(Math.abs(angle) > 1 ? 0 : 8d);
+			// TODO WSMovement
+			myLocation = new Point2D.Double(robot.getX(), robot.getY());
+			updateWaves();
+			doSurfing();
 		}
-
 	}
 
 	@Override
 	public void updateWaves(Bullet bullet) {
 		// TODO WSMovement
-		// If the enemyWaves collection is empty, we must have missed the
-		// detection of this wave somehow.
-		if (!enemyWaves.isEmpty()) {
-			Point2D.Double hitBulletLocation = new Point2D.Double(bullet.getX(), bullet.getY());
-			EnemyWave hitWave = null;
+		if (robot.getOthers() <= 1) {
+			// If the enemyWaves collection is empty, we must have missed the
+			// detection of this wave somehow.
+			if (!enemyWaves.isEmpty()) {
+				Point2D.Double hitBulletLocation = new Point2D.Double(bullet.getX(), bullet.getY());
+				EnemyWave hitWave = null;
 
-			// look through the EnemyWaves, and find the one that could've hit
-			// us.
-			for (int x = 0; x < enemyWaves.size(); x++) {
-				EnemyWave ew = enemyWaves.get(x);
+				// look through the EnemyWaves, and find the one that could've
+				// hit
+				// us.
+				for (int x = 0; x < enemyWaves.size(); x++) {
+					EnemyWave ew = enemyWaves.get(x);
 
-				if (Math.abs(ew.distanceTraveled - myLocation.distance(ew.fireLocation)) < 50
-						&& Math.abs(RoboUtils.bulletVelocity(bullet.getPower()) - ew.bulletVelocity) < 0.001) {
-					hitWave = ew;
-					break;
+					if (Math.abs(ew.distanceTraveled - myLocation.distance(ew.fireLocation)) < 50
+							&& Math.abs(RoboUtils.bulletVelocity(bullet.getPower()) - ew.bulletVelocity) < 0.001) {
+						hitWave = ew;
+						break;
+					}
 				}
-			}
-			if (null != hitWave) {
-				logHit(hitWave, hitBulletLocation);
-				// We can remove this wave now
-				enemyWaves.remove(enemyWaves.lastIndexOf(hitWave));
+				if (null != hitWave) {
+					logHit(hitWave, hitBulletLocation);
+					// We can remove this wave now
+					enemyWaves.remove(enemyWaves.lastIndexOf(hitWave));
+				}
 			}
 		}
 	}

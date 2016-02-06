@@ -8,9 +8,7 @@ import cam.gun.Gun;
 import cam.gun.HOTGun;
 import cam.model.BattleInfo;
 import cam.model.Enemy;
-import cam.movement.MRMovement;
-import cam.movement.Movement;
-import cam.movement.WSMovement;
+import cam.movement.CombinedMovement;
 import robocode.AdvancedRobot;
 import robocode.BulletHitBulletEvent;
 import robocode.HitByBulletEvent;
@@ -39,7 +37,7 @@ import robocode.WinEvent;
  */
 public class Leonidas extends AdvancedRobot {
 
-	private Movement movement;
+	private CombinedMovement movement;
 	private Gun gun;
 
 	// This info is only used during melee
@@ -57,11 +55,12 @@ public class Leonidas extends AdvancedRobot {
 
 		setTurnRadarRightRadians(Double.POSITIVE_INFINITY);
 
-		info.nextDestination = info.lastPosition = info.myLocation = new Point2D.Double(
-				getX(), getY());
+		info.nextDestination = info.lastPosition = info.myLocation = new Point2D.Double(getX(), getY());
 		info.target = new Enemy();
-		
+
 		System.out.println("Spartans, prepare for glory!");
+		movement = CombinedMovement.getMovement(this);
+		movement.info = info;
 
 		while (true) {
 			// If there is more than 1 opponent use the
@@ -69,8 +68,6 @@ public class Leonidas extends AdvancedRobot {
 			if (getOthers() > 1) {
 				gun = HOTGun.getGun(this);
 				((HOTGun) gun).info = info;
-				movement = MRMovement.getMovement(this);
-				((MRMovement) movement).info = info;
 
 				info.myLocation = new Point2D.Double(getX(), getY());
 				info.myEnergy = getEnergy();
@@ -86,7 +83,6 @@ public class Leonidas extends AdvancedRobot {
 			// and Wave Surfing movement
 			else {
 				gun = GFTGun.getGun(this);
-				movement = WSMovement.getMovement(this);
 				gun.update();
 
 				if (gun.getLastScanTime() + 1 < getTime()) {

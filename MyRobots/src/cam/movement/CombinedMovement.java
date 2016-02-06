@@ -19,6 +19,8 @@ public class CombinedMovement implements Movement {
 
 	public BattleInfo info;
 
+	private static CombinedMovement movement;
+
 	private static final double WALL_MARGIN = 18;
 	private static final double WALL_STICK = 160;
 	private static final int BINS = 47;
@@ -45,6 +47,13 @@ public class CombinedMovement implements Movement {
 		this.robot = robot;
 		fieldRectangle = new Rectangle2D.Double(WALL_MARGIN, WALL_MARGIN, robot.getBattleFieldWidth() - WALL_MARGIN * 2,
 				robot.getBattleFieldHeight() - WALL_MARGIN * 2);
+	}
+
+	public static CombinedMovement getMovement(AdvancedRobot robot) {
+		if (null == movement) {
+			movement = new CombinedMovement(robot);
+		}
+		return movement;
 	}
 
 	@Override

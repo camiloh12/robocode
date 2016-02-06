@@ -11,6 +11,7 @@ import cam.model.Enemy;
 import cam.movement.CombinedMovement;
 import robocode.AdvancedRobot;
 import robocode.BulletHitBulletEvent;
+import robocode.DeathEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.RobotDeathEvent;
@@ -125,11 +126,16 @@ public class Leonidas extends AdvancedRobot {
 	}
 
 	public void onWin(WinEvent event) {
+		System.out.println("Tonight we dine in hell!");
 		setTurnRadarRightRadians(Double.POSITIVE_INFINITY);
 		setTurnGunLeftRadians(Double.POSITIVE_INFINITY);
 		for (int i = 0; i < 50; i++) {
 			turnRight(35);
 			turnLeft(35);
 		}
+	}
+
+	public void onDeath(DeathEvent event) {
+		System.out.println("It was a pleasure to live by your side.");
 	}
 }

@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 
 import cam.gun.GFTGun;
 import cam.gun.Gun;
-import cam.gun.HOTGun;
+import cam.gun.LinearGun;
 import cam.model.BattleInfo;
 import cam.model.Enemy;
 import cam.movement.CombinedMovement;
@@ -21,17 +21,14 @@ import robocode.WinEvent;
 /**
  * King of Sparta
  * 
- * This robot is able to switch between melee and 1v1 strategies based on the
- * number of opponents on the field.
+ * This robot is able to switch between melee and 1v1 strategies based on the number of opponents on the field.
  * 
  * The 1v1 robot is based on BasicGFSurfer by Voidious, PEZ, and Bayen.
  * 
- * It is a combination of the movement from BasicSurfer and the gun from
- * GFTargetingBot. See: http://robowiki.net?BasicSurfer
- * http://robowiki.net?GFTargetingBot
+ * It is a combination of the movement from BasicSurfer and the gun from GFTargetingBot. See:
+ * http://robowiki.net?BasicSurfer http://robowiki.net?GFTargetingBot
  * 
- * The melee version is based on HawkOnFire by Rozu. See:
- * http://robowiki.net?HawkOnFire
+ * The melee version is based on HawkOnFire by Rozu. See: http://robowiki.net?HawkOnFire
  * 
  * @author camilo
  *
@@ -67,8 +64,8 @@ public class Leonidas extends AdvancedRobot {
 			// If there is more than 1 opponent use the
 			// Head-On Targeting gun and Minimum Risk Movement
 			if (getOthers() > 1) {
-				gun = HOTGun.getGun(this);
-				((HOTGun) gun).info = info;
+				gun = LinearGun.getGun(this);
+				((LinearGun) gun).info = info;
 
 				info.myLocation = new Point2D.Double(getX(), getY());
 				info.myEnergy = getEnergy();

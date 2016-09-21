@@ -6,4 +6,5 @@ public class Enemy {
 	public Point2D.Double position;
 	public double energy;
 	public boolean live;
+	public double lateralVelocity;
 }

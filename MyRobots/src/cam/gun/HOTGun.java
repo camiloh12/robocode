@@ -49,15 +49,12 @@ public class HOTGun implements Gun {
 
 		enemy.energy = event.getEnergy();
 		enemy.live = true;
-		enemy.position = RoboUtils.project(info.myLocation,
-				robot.getHeadingRadians() + event.getBearingRadians(),
+		enemy.position = RoboUtils.project(info.myLocation, robot.getHeadingRadians() + event.getBearingRadians(),
 				event.getDistance());
 
 		// normal target selection: the one closer to you is the most dangerous
 		// so attack him
-		if (!info.target.live
-				|| event.getDistance() < info.myLocation
-						.distance(info.target.position)) {
+		if (!info.target.live || event.getDistance() < info.myLocation.distance(info.target.position)) {
 			info.target = enemy;
 		}
 
@@ -65,21 +62,17 @@ public class HOTGun implements Gun {
 		if (robot.getOthers() == 1) {
 			robot.setTurnRadarLeftRadians(robot.getRadarTurnRemainingRadians());
 		} else {
-			robot.setTurnGunRightRadians(Utils.normalRelativeAngle(RoboUtils
-					.absoluteBearing(info.myLocation, info.target.position)
-					- robot.getGunHeadingRadians()));
+			robot.setTurnGunRightRadians(Utils.normalRelativeAngle(
+					RoboUtils.absoluteBearing(info.myLocation, info.target.position) - robot.getGunHeadingRadians()));
 		}
 	}
 
 	@Override
 	public void update() {
 		// HeadOnTargeting
-		double distanceToTarget = info.myLocation
-				.distance(info.target.position);
+		double distanceToTarget = info.myLocation.distance(info.target.position);
 		if (robot.getGunTurnRemainingRadians() == 0 && info.myEnergy > 1) {
-			robot.setFire(Math.min(
-					Math.min(info.myEnergy / 6d, 1300d / distanceToTarget),
-					info.target.energy / 3d));
+			robot.setFire(Math.min(Math.min(info.myEnergy / 6d, 1300d / distanceToTarget), info.target.energy / 3d));
 		}
 	}
 

@@ -3,7 +3,7 @@
 http://robocode.sourceforge.net
 http://robowiki.net/wiki/Robocode
 
-This robot is able to switch between melee and 1v1 strategies based on thenumber of opponents on the field.
+This robot is able to switch between melee and 1v1 strategies based on the number of opponents on the field.
 
 The 1v1 robot is based on BasicGFSurfer by Voidious, PEZ, and Bayen.
 

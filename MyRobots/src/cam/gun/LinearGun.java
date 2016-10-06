@@ -9,22 +9,22 @@ import robocode.AdvancedRobot;
 import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
 
-public class LinearGun2 implements Gun {
+public class LinearGun implements Gun {
 
-	private static LinearGun2 gun;
+	private static LinearGun gun;
 
 	private AdvancedRobot robot;
 
 	public BattleInfo info;
 	public double bulletPower = 3.0;
 
-	private LinearGun2(AdvancedRobot robot) {
+	private LinearGun(AdvancedRobot robot) {
 		this.robot = robot;
 	}
 
-	public static LinearGun2 getGun(AdvancedRobot robot) {
+	public static LinearGun getGun(AdvancedRobot robot) {
 		if (null == gun) {
-			gun = new LinearGun2(robot);
+			gun = new LinearGun(robot);
 		}
 		return gun;
 	}

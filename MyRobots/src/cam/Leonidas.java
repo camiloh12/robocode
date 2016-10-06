@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 
 import cam.gun.GFTGun;
 import cam.gun.Gun;
-import cam.gun.LinearGun2;
+import cam.gun.LinearGun;
 import cam.model.BattleInfo;
 import cam.model.Enemy;
 import cam.movement.CombinedMovement;
@@ -64,8 +64,8 @@ public class Leonidas extends AdvancedRobot {
 			// If there is more than 1 opponent use the
 			// Linear Targeting gun and Minimum Risk Movement
 			if (getOthers() > 1) {
-				gun = LinearGun2.getGun(this);
-				((LinearGun2) gun).info = info;
+				gun = LinearGun.getGun(this);
+				((LinearGun) gun).info = info;
 
 				info.myLocation = new Point2D.Double(getX(), getY());
 				info.myEnergy = getEnergy();

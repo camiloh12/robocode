@@ -3,6 +3,7 @@ package cam;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 
+import cam.gun.CircularGun;
 import cam.gun.GFTGun;
 import cam.gun.Gun;
 import cam.gun.LinearGun;
@@ -67,12 +68,16 @@ public class Leonidas extends AdvancedRobot {
 				gun = LinearGun.getGun(this);
 				((LinearGun) gun).info = info;
 
+				gun = CircularGun.getGun(this);
+				((CircularGun) gun).info = info;
+
 				info.myLocation = new Point2D.Double(getX(), getY());
 				info.myEnergy = getEnergy();
 
 				// wait until you have scanned all other bots.
 				// this should take around 7 to 9 ticks.
 				if (info.target.live && getTime() > 9) {
+					// if (getTime() > 9) {
 					movement.update();
 					gun.update();
 				}
